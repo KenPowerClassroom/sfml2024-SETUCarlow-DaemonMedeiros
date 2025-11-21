@@ -2,37 +2,43 @@
 #include <time.h>
 using namespace sf;
 
+int blockIndex = 0;
+int const MAXBLOCKS = 100;
+
 int const SCREEN_WIDTH = 520;
 int const SCREEN_HEIGHT = 450;
 int const FPS = 60;
-
 int const BLOCK_WIDTH = 43;
 int const BLOCK_HEIGHT = 20;
 int const LENGTH = 10;
-
 int const PAD_SPEED = 6;
 
-sf::Vector2f paddlePos = sf::Vector2f(300.0f, 440.0f);
+Texture t1, t2, t3, t4;
+Sprite sBackground, sBall, sPaddle;
+Sprite block[MAXBLOCKS];
 
-int arkanoid()
+float dx = 6, dy = 5;
+float x = 300, y = 300;
+
+Vector2f paddlePos = Vector2f(300.0f, 440.0f);
+Vector2f ballPos = Vector2f(300.0f, 300.0f);
+Vector2f ballSpeed = Vector2f(6.0f, 5.0f);
+
+void initTextures()
 {
-    srand(time(0));
-
-    RenderWindow app(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Arkanoid!");
-    app.setFramerateLimit(FPS);
-
-    Texture t1,t2,t3,t4;
     t1.loadFromFile("images/arkanoid/block01.png");
     t2.loadFromFile("images/arkanoid/background.jpg");
     t3.loadFromFile("images/arkanoid/ball.png");
     t4.loadFromFile("images/arkanoid/paddle.png");
 
-    Sprite sBackground(t2), sBall(t3), sPaddle(t4);
+    sBackground.setTexture(t2);
+    sBall.setTexture(t3);
+    sPaddle.setTexture(t4);
+}
+
+void initSprites()
+{
     sPaddle.setPosition(paddlePos);
-
-    Sprite block[1000];
-
-    int blockIndex = 0;
 
     for (int column = 1; column <= LENGTH; column++)
     {
@@ -43,12 +49,59 @@ int arkanoid()
             blockIndex++;
         }
     }
+}
 
-    float dx=6, dy=5;
-    float x=300, y=300;
+void checkBounds()
+{
+    if (x < 0 || x > SCREEN_WIDTH)
+    {
+        dx = -dx;
+    }
 
-    sf::Vector2f ballSpeed = sf::Vector2f(6.0f, 5.0f);
-    sf::Vector2f ballPos = sf::Vector2f(300.0f, 300.0f);
+    if (y < 0 || y > SCREEN_HEIGHT)
+    {
+        dy = -dy;
+    }
+}
+
+void movePaddle()
+{
+    if (Keyboard::isKeyPressed(Keyboard::Right))
+    {
+        sPaddle.move(PAD_SPEED, 0);
+    }
+
+    if (Keyboard::isKeyPressed(Keyboard::Left))
+    {
+        sPaddle.move(-PAD_SPEED, 0);
+    }
+}
+
+void drawSprites(RenderWindow & t_app)
+{
+    t_app.clear();
+
+    t_app.draw(sBackground);
+    t_app.draw(sBall);
+    t_app.draw(sPaddle);
+
+    for (int i = 0; i < blockIndex; i++)
+    {
+        t_app.draw(block[i]);
+    }
+
+    t_app.display();
+}
+
+int arkanoid()
+{
+    srand(time(0));
+
+    RenderWindow app(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Arkanoid!");
+    app.setFramerateLimit(FPS);
+
+    initTextures();
+    initSprites();
 
     while (app.isOpen())
     {
@@ -69,7 +122,7 @@ int arkanoid()
             }
         }
 
-        y+=dy;
+        y += dy;
         for (int i = 0; i < blockIndex; i++)
         {
             if (FloatRect(x + 3, y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
@@ -79,25 +132,8 @@ int arkanoid()
             }
         }
 
-        if (x < 0 || x > SCREEN_WIDTH)
-        {
-            dx = -dx;
-        }
-
-        if (y < 0 || y > SCREEN_HEIGHT)
-        {
-            dy = -dy;
-        }
-
-        if (Keyboard::isKeyPressed(Keyboard::Right))
-        {
-            sPaddle.move(PAD_SPEED, 0);
-        }
-
-        if (Keyboard::isKeyPressed(Keyboard::Left))
-        {
-            sPaddle.move(-PAD_SPEED, 0);
-        }
+        checkBounds();
+        movePaddle();
 
         if (FloatRect(x, y, 12, 12).intersects(sPaddle.getGlobalBounds()))
         {
@@ -106,17 +142,8 @@ int arkanoid()
 
         sBall.setPosition(x,y);
 
-        app.clear();
-        app.draw(sBackground);
-        app.draw(sBall);
-        app.draw(sPaddle);
+        drawSprites(app);
 
-        for (int i = 0; i < blockIndex; i++)
-        {
-            app.draw(block[i]);
-        }
-
-        app.display();
     }
 
   return 0;
