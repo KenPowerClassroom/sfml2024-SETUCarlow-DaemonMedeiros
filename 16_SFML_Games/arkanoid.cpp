@@ -16,9 +16,6 @@ int const PAD_SPEED = 6;
 Sprite sBackground, sBall, sPaddle;
 Sprite block[MAXBLOCKS];
 
-float dx = 6, dy = 5;
-float x = 300, y = 300;
-
 Vector2f paddlePos = Vector2f(300.0f, 440.0f);
 Vector2f ballPos = Vector2f(300.0f, 300.0f);
 Vector2f ballSpeed = Vector2f(6.0f, 5.0f);
@@ -35,9 +32,10 @@ void initTextures(Texture &t1, Texture &t2, Texture &t3,Texture &t4)
     sPaddle.setTexture(t4);
 }
 
-void initBlockSprites(Texture &t1)
+void initSprites(Texture &t1)
 {
     sPaddle.setPosition(paddlePos);
+    sBall.setPosition(ballPos);
 
     for (int column = 1; column <= LENGTH; column++)
     {
@@ -52,14 +50,14 @@ void initBlockSprites(Texture &t1)
 
 void checkBounds()
 {
-    if (x < 0 || x > SCREEN_WIDTH)
+    if (ballPos.x < 0 || ballPos.x > SCREEN_WIDTH)
     {
-        dx = -dx;
+        ballSpeed.x = -ballSpeed.x;
     }
 
-    if (y < 0 || y > SCREEN_HEIGHT)
+    if (ballPos.y < 0 || ballPos.y > SCREEN_HEIGHT)
     {
-        dy = -dy;
+        ballSpeed.y = -ballSpeed.y;
     }
 }
 
@@ -102,46 +100,46 @@ int arkanoid()
     app.setFramerateLimit(FPS);
 
     initTextures(t1, t2, t3, t4);
-    initBlockSprites(t1);
+    initSprites(t1);
 
     while (app.isOpen())
     {
-       Event e;
-       while (app.pollEvent(e))
+       Event event;
+       while (app.pollEvent(event))
        {
-         if (e.type == Event::Closed)
+         if (event.type == Event::Closed)
              app.close();
        }
 
-        x+=dx;
+        ballPos.x += ballSpeed.x;
         for (int i = 0; i < blockIndex; i++)
         {
-            if (FloatRect(x + 3, y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
+            if (FloatRect(ballPos.x + 3, ballPos.y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
             {
                 block[i].setPosition(-100, 0);
-                dx = -dx;
+                ballSpeed.x = -ballSpeed.x;
             }
         }
 
-        y += dy;
+        ballPos.y += ballSpeed.y;
         for (int i = 0; i < blockIndex; i++)
         {
-            if (FloatRect(x + 3, y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
+            if (FloatRect(ballPos.x + 3, ballPos.y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
             {
                 block[i].setPosition(-100, 0);
-                dy = -dy;
+                ballSpeed.y = -ballSpeed.y;
             }
         }
 
         checkBounds();
         movePaddle();
 
-        if (FloatRect(x, y, 12, 12).intersects(sPaddle.getGlobalBounds()))
+        if (FloatRect(ballPos.x, ballPos.y, 12, 12).intersects(sPaddle.getGlobalBounds()))
         {
-            dy = -(rand() % 5 + 2);
+            ballSpeed.y = -(rand() % 5 + 2);
         }
 
-        sBall.setPosition(x,y);
+        sBall.setPosition(ballPos);
 
         drawSprites(app);
 
