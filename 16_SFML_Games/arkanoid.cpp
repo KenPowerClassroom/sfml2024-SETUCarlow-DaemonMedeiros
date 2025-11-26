@@ -13,7 +13,6 @@ int const BLOCK_HEIGHT = 20;
 int const LENGTH = 10;
 int const PAD_SPEED = 6;
 
-Texture t1, t2, t3, t4;
 Sprite sBackground, sBall, sPaddle;
 Sprite block[MAXBLOCKS];
 
@@ -24,7 +23,7 @@ Vector2f paddlePos = Vector2f(300.0f, 440.0f);
 Vector2f ballPos = Vector2f(300.0f, 300.0f);
 Vector2f ballSpeed = Vector2f(6.0f, 5.0f);
 
-void initTextures()
+void initTextures(Texture &t1, Texture &t2, Texture &t3,Texture &t4)
 {
     t1.loadFromFile("images/arkanoid/block01.png");
     t2.loadFromFile("images/arkanoid/background.jpg");
@@ -36,7 +35,7 @@ void initTextures()
     sPaddle.setTexture(t4);
 }
 
-void initSprites()
+void initBlockSprites(Texture &t1)
 {
     sPaddle.setPosition(paddlePos);
 
@@ -95,13 +94,15 @@ void drawSprites(RenderWindow & t_app)
 
 int arkanoid()
 {
+    Texture t1, t2, t3, t4;
+
     srand(time(0));
 
     RenderWindow app(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Arkanoid!");
     app.setFramerateLimit(FPS);
 
-    initTextures();
-    initSprites();
+    initTextures(t1, t2, t3, t4);
+    initBlockSprites(t1);
 
     while (app.isOpen())
     {
