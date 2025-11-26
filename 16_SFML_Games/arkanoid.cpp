@@ -90,6 +90,18 @@ void drawSprites(RenderWindow & t_app)
     t_app.display();
 }
 
+void doesBallIntersectBlock(float &t_pos, float &t_speed)
+{
+    for (int i = 0; i < blockIndex; i++)
+    {
+        if (FloatRect(ballPos.x + 3, ballPos.y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
+        {
+            block[i].setPosition(-100, 0);
+            t_speed = -t_speed;
+        }
+    }
+}
+
 int arkanoid()
 {
     Texture t1, t2, t3, t4;
@@ -112,24 +124,10 @@ int arkanoid()
        }
 
         ballPos.x += ballSpeed.x;
-        for (int i = 0; i < blockIndex; i++)
-        {
-            if (FloatRect(ballPos.x + 3, ballPos.y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
-            {
-                block[i].setPosition(-100, 0);
-                ballSpeed.x = -ballSpeed.x;
-            }
-        }
+        doesBallIntersectBlock(ballPos.x, ballSpeed.x);
 
         ballPos.y += ballSpeed.y;
-        for (int i = 0; i < blockIndex; i++)
-        {
-            if (FloatRect(ballPos.x + 3, ballPos.y + 3, 6, 6).intersects(block[i].getGlobalBounds()))
-            {
-                block[i].setPosition(-100, 0);
-                ballSpeed.y = -ballSpeed.y;
-            }
-        }
+        doesBallIntersectBlock(ballPos.y, ballSpeed.y);
 
         checkBounds();
         movePaddle();
